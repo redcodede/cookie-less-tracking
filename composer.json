@@ -1,0 +1,32 @@
+{
+    "name": "redcodede/cookie-less-tracking",
+    "require": {
+        "ext-pdo": "*"
+    },
+    "type": "statamic-addon",
+    "autoload": {
+        "psr-4": {
+            "Redcodede\\CookieLessTracking\\": "src"
+        }
+    },
+    "authors": [
+        {
+            "name": "Alexander Friederich",
+            "email": "alexander.friederich@gmail.com"
+        }
+    ],
+    "support": {
+        "email": "service@redcode.org"
+    },
+    "extra": {
+        "statamic": {
+            "name": "Cookie less Tracking",
+            "description": "A GDPR and DSGVO compliant tracking solution"
+        },
+        "laravel": {
+            "providers": [
+                "Redcodede\\CookieLessTracking\\ServiceProvider"
+            ]
+        }
+    }
+},
