@@ -1,7 +1,9 @@
 {
     "name": "redcodede/cookie-less-tracking",
     "require": {
-        "ext-pdo": "*"
+        "ext-pdo": "*",
+        "ext-pdo_sqlite": "*",
+        "ext-sqlite3": "*"
     },
     "type": "statamic-addon",
     "autoload": {
@@ -12,12 +14,15 @@
     "authors": [
         {
             "name": "Alexander Friederich",
-            "email": "alexander.friederich@gmail.com"
+            "email": "afriederich@redcode.org"
         }
     ],
     "support": {
         "email": "service@redcode.org"
     },
+    "license": [
+        "AGPL-3.0"
+    ],
     "extra": {
         "statamic": {
             "name": "Cookie less Tracking",
