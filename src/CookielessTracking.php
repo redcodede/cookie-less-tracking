@@ -114,7 +114,7 @@ SQL;
                 date("Y-m-d")
             ])),
             'user_id' => 'do not track',
-            'http_useragent' => $_SERVER['HTTP_USER_AGENT'],
+            'http_useragent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
             'http_accept' => implode("\t", [
                 $_SERVER['HTTP_ACCEPT'] ?? null,
                 $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? null,
