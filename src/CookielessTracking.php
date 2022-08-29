@@ -65,6 +65,8 @@ SQL;
     {
         // Do not track/break if not yet installed
         if ( ! file_exists(self::TRACKING_DB)) return;
+        // Check if DB is actually writeable
+        if ( ! is_writeable(self::TRACKING_DB)) return;
 
         $stmt = self::prepareStatement();
         $stmt->execute(array_merge(self::getDefaultValues(), [
