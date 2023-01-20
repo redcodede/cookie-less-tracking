@@ -20,3 +20,7 @@ composer require redcodede/cookie-less-tracking
 ## How to Use
 
 Here's where you can explain how to use this wonderful addon.
+
+## DEV
+
+    ln -s /var/www/html/addons/redcodede/cookie-less-tracking/resources/dist public/vendor/cookie-less-tracking

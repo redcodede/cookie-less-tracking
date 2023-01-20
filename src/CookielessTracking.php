@@ -13,34 +13,9 @@ class CookielessTracking
          *      - Check if PDO Extension and SQLite Extension exist
          *      - Check if Folder is writable
          */
+        self::createTrackingDbFile();
+        self::createAnalyticsEventView();
 
-        // Check if sqlite file exists
-        if (file_exists(self::TRACKING_DB)) return;
-
-        // create sqlite file and migrate schema
-        touch(self::TRACKING_DB);
-        $pdo = new \PDO('sqlite:'.self::TRACKING_DB);
-        // create table with schema
-        $sql = <<<SQL
-CREATE TABLE page_views (
-	id INTEGER PRIMARY KEY,
-	session_id INTEGER,
-	user_id TEXT,
-	http_useragent INTEGER,
-	http_accept TEXT,
-	http_referer	TEXT,
-	event_time TEXT,
-	event_name TEXT,
-	event_category TEXT,
-	event_target TEXT,
-    event_uri TEXT,
-    event_label TEXT,
-    event_value INTEGER,
-    tenant_id TEXT,
-    campaign_id TEXT
-);
-SQL;
-        $pdo->exec($sql);
     }
 
     private static function prepareStatement() {
@@ -133,5 +108,62 @@ SQL;
             'tenant_id' => null,
             'campaign_id' => null,
         ];
+    }
+
+    /**
+     * create the tracking sqlite db file
+     *
+     * @return void
+     */
+    private static function createTrackingDbFile() {
+        // Check if sqlite file exists
+        if (file_exists(self::TRACKING_DB)) return;
+
+        // create sqlite file and migrate schema
+        touch(self::TRACKING_DB);
+        $pdo = new \PDO('sqlite:'.self::TRACKING_DB);
+        // create table with schema
+        $sql = <<<SQL
+CREATE TABLE page_views (
+	id INTEGER PRIMARY KEY,
+	session_id INTEGER,
+	user_id TEXT,
+	http_useragent INTEGER,
+	http_accept TEXT,
+	http_referer	TEXT,
+	event_time TEXT,
+	event_name TEXT,
+	event_category TEXT,
+	event_target TEXT,
+    event_uri TEXT,
+    event_label TEXT,
+    event_value INTEGER,
+    tenant_id TEXT,
+    campaign_id TEXT
+);
+SQL;
+        $pdo->exec($sql);
+    }
+
+    /**
+     * create the view "analytics_events" to pre-filter out all bot traffic
+     * - Drop the existing view if this addon has an update and the
+     *   view needs to be updated
+     *
+     * @return void
+     */
+    private static function createAnalyticsEventView() {
+        $sql = <<<SQL
+DROP VIEW IF EXISTS analytics_events;
+
+CREATE VIEW "analytics_events" AS
+SELECT * FROM page_views
+WHERE  (http_useragent LIKE 'mozilla%' OR http_useragent LIKE 'opera%')
+	AND NOT (http_useragent LIKE '%bot%' OR http_useragent LIKE '%crawl%' OR http_useragent LIKE '%spider%' OR http_useragent LIKE '%grab%' OR http_useragent LIKE '%headless%')
+	AND NOT (http_useragent LIKE '%google%' OR http_useragent LIKE '%bing%' OR http_useragent LIKE '%lighthouse%' OR http_useragent LIKE '%qwant%');
+SQL;
+
+        $pdo = new \PDO('sqlite:'.self::TRACKING_DB);
+        $pdo->exec($sql);
     }
 }
