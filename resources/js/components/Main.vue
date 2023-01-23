@@ -487,10 +487,10 @@ export default {
             this.lines = {
                 sessions: {title: 'User Sessions', data: [], color: '#d2007a'},
                 views: {title: 'Views', data: [], color: '#0098d4'},
-                downloads: {title: 'Downloads', data: [], color: '#dddb2f'},
-                conversions: {title: 'Conversions', data: [], color: '#1d7e07'},
-                submits: {title: 'Submits', data: [], color: '#599696'},
-                bounces: {title: 'Bounces', data: [], color: '#ff5928'},
+                downloads: {title: 'Downloads', data: [], color: '#fdc600'},
+                conversions: {title: 'Conversions', data: [], color: '#adcb57'},
+                submits: {title: 'Submits', data: [], color: '#f39910'},
+                bounces: {title: 'Bounces', data: [], color: '#db001b'},
             };
 
             // Reset Sums
