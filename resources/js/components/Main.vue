@@ -517,23 +517,30 @@ export default {
                 this.lines.submits.data.push(stat.submits);
                 this.lines.bounces.data.push(stat.bounces);
 
-                this.sums.sessions += stat.sessions;
-                this.sums.views += stat.views;
-                this.sums.downloads += stat.downloads;
-                this.sums.conversions += stat.conversions;
-                this.sums.submits += stat.submits;
-                this.sums.bounces += stat.bounces;
+                this.sums.sessions += parseInt(stat.sessions);
+                this.sums.views += parseInt(stat.views);
+                this.sums.downloads += parseInt(stat.downloads);
+                this.sums.conversions += parseInt(stat.conversions);
+                this.sums.submits += parseInt(stat.submits);
+                this.sums.bounces += parseInt(stat.bounces);
             });
         },
         renderChart() {
             let data = {
-                labels: this.rawStats.map(e => e.label),
+                labels: [],
                 lines: [],
             };
 
-            for (let line in this.ui) {
-                if (this.ui[line]) {
-                    data.lines.push(this.lines[line]);
+            if (this.rawStats && this.rawStats.length) {
+                data = {
+                    labels: this.rawStats.map(e => e.label),
+                    lines: [],
+                };
+
+                for (let line in this.ui) {
+                    if (this.ui[line]) {
+                        data.lines.push(this.lines[line]);
+                    }
                 }
             }
 
