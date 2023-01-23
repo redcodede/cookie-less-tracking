@@ -59,7 +59,7 @@ GROUP BY label
 ORDER BY label
 SQL;
 
-        $pdo = new \PDO('sqlite:'.CookielessTracking::TRACKING_DB);
+        $pdo = CookielessTracking::getPDO();
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);

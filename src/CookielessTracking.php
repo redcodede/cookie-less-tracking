@@ -18,8 +18,13 @@ class CookielessTracking
 
     }
 
+    public static function getPDO(): \PDO
+    {
+        return new \PDO('sqlite:'.database_path('tracking.sqlite'));
+    }
+
     private static function prepareStatement() {
-        $pdo = new \PDO('sqlite:'.self::TRACKING_DB);
+        $pdo = self::getPDO();
         $query = <<<SQL
 INSERT INTO page_views(session_id,user_id,http_useragent,http_accept,http_referer,event_time,event_name,event_category,event_target,event_uri,event_label,event_value,tenant_id,campaign_id)
 values(:session_id,:user_id,:http_useragent,:http_accept,:http_referer,:event_time,:event_name,:event_category,:event_target,:event_uri,:event_label,:event_value,:tenant_id,:campaign_id);
@@ -39,9 +44,9 @@ SQL;
     public static function trackPageView(string $event_target = null, string $event_label = null)
     {
         // Do not track/break if not yet installed
-        if ( ! file_exists(self::TRACKING_DB)) return;
+        if ( ! file_exists(database_path('tracking.sqlite'))) return;
         // Check if DB is actually writeable
-        if ( ! is_writeable(self::TRACKING_DB)) return;
+        if ( ! is_writeable(database_path('tracking.sqlite'))) return;
 
         $stmt = self::prepareStatement();
         $stmt->execute(array_merge(self::getDefaultValues(), [
@@ -63,7 +68,7 @@ SQL;
     public static function trackFormSubmission(string $event_target = null, string $event_label = null)
     {
         // Do not track/break if not yet installed
-        if ( ! file_exists(self::TRACKING_DB)) return;
+        if ( ! file_exists(database_path('tracking.sqlite'))) return;
 
         $stmt = self::prepareStatement();
         $stmt->execute(array_merge(self::getDefaultValues(), [
@@ -117,11 +122,11 @@ SQL;
      */
     private static function createTrackingDbFile() {
         // Check if sqlite file exists
-        if (file_exists(self::TRACKING_DB)) return;
+        if (file_exists(database_path('tracking.sqlite'))) return;
 
         // create sqlite file and migrate schema
-        touch(self::TRACKING_DB);
-        $pdo = new \PDO('sqlite:'.self::TRACKING_DB);
+        touch(database_path('tracking.sqlite'));
+        $pdo = self::getPDO();
         // create table with schema
         $sql = <<<SQL
 CREATE TABLE page_views (
@@ -163,7 +168,7 @@ WHERE  (http_useragent LIKE 'mozilla%' OR http_useragent LIKE 'opera%')
 	AND NOT (http_useragent LIKE '%google%' OR http_useragent LIKE '%bing%' OR http_useragent LIKE '%lighthouse%' OR http_useragent LIKE '%qwant%');
 SQL;
 
-        $pdo = new \PDO('sqlite:'.self::TRACKING_DB);
+        $pdo = self::getPDO();
         $pdo->exec($sql);
     }
 }
