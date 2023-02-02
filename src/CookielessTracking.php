@@ -4,7 +4,6 @@ namespace Redcodede\CookieLessTracking;
 
 class CookielessTracking
 {
-    public const TRACKING_DB = __DIR__.'/../tracking.sqlite';
 
     public static function install()
     {
@@ -15,7 +14,6 @@ class CookielessTracking
          */
         self::createTrackingDbFile();
         self::createAnalyticsEventView();
-
     }
 
     public static function getPDO(): \PDO
@@ -45,8 +43,6 @@ SQL;
     {
         // Do not track/break if not yet installed
         if ( ! file_exists(database_path('tracking.sqlite'))) return;
-        // Check if DB is actually writeable
-        if ( ! is_writeable(database_path('tracking.sqlite'))) return;
 
         $stmt = self::prepareStatement();
         $stmt->execute(array_merge(self::getDefaultValues(), [
@@ -79,6 +75,14 @@ SQL;
         ]));
     }
 
+    private static function dnt_enabled(): bool
+    {
+        if (isset($_SERVER['HTTP_DNT'])) {
+            return (bool)$_SERVER['HTTP_DNT'] ?? false;
+        }
+        return false;
+    }
+
     /**
      * get a set of default values
      *
@@ -95,7 +99,7 @@ SQL;
                 $_SERVER['REMOTE_ADDR'] ?? null,
                 date("Y-m-d")
             ])),
-            'user_id' => 'do not track',
+            'user_id' => self::dnt_enabled() ? 'do not track' : null,
             'http_useragent' => $_SERVER['HTTP_USER_AGENT'] ?? null,
             'http_accept' => implode("\t", [
                 $_SERVER['HTTP_ACCEPT'] ?? null,

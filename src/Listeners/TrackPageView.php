@@ -25,6 +25,8 @@ class TrackPageView
      */
     public function handle(Event $event)
     {
-        CookielessTracking::trackPageView($event->data->id, $event->data->title);
+        try {
+            CookielessTracking::trackPageView($event->data->id, $event->data->title);
+        } catch (\Exception $exception) {}
     }
 }

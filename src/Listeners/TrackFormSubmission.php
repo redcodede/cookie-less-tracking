@@ -24,6 +24,8 @@ class TrackFormSubmission
      */
     public function handle($event)
     {
-        CookielessTracking::trackFormSubmission($event->submission->form->handle, $event->submission->form->title);
+        try {
+            CookielessTracking::trackFormSubmission($event->submission->form->handle, $event->submission->form->title);
+        } catch (\Exception $exception) {}
     }
 }
