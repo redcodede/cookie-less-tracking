@@ -4,7 +4,7 @@
         "ext-pdo": "*",
         "ext-pdo_sqlite": "*",
         "ext-sqlite3": "*",
-        "statamic/cms": "^3.3.65"
+        "statamic/cms": ">=3.3.65"
     },
     "type": "statamic-addon",
     "autoload": {
