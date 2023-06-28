@@ -37,7 +37,7 @@ class ServiceProvider extends AddonServiceProvider
     public function bootAddon()
     {
         Statamic::afterInstalled(function ($command) {
-            CookielessTracking::install();
+            CookieLessTracking::install();
         });
     }
 

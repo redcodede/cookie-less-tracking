@@ -2,7 +2,7 @@
 
 namespace Redcodede\CookieLessTracking\Tags;
 
-use Redcodede\CookieLessTracking\CookielessTracking;
+use Redcodede\CookieLessTracking\CookieLessTracking;
 use Statamic\Tags\Tags;
 
 /**
@@ -25,7 +25,7 @@ class TrackPageView extends Tags
 
         if (is_null($id) || is_null($title)) return;
 
-        CookielessTracking::trackPageView($id, $title);
+        CookieLessTracking::trackPageView($id, $title);
     }
 
 }

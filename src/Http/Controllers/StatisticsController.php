@@ -3,19 +3,20 @@
 namespace Redcodede\CookieLessTracking\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Redcodede\CookieLessTracking\CookielessTracking;
+use Redcodede\CookieLessTracking\CookieLessTracking;
 use Statamic\Http\Controllers\CP\CpController;
 
 class StatisticsController extends CpController
 {
     public function index(Request $request)
     {
-        $db_file_size = CookielessTracking::getDbFileSize();
+        $db_file_size = CookieLessTracking::getDbFileSize();
+        $version_check = CookieLessTracking::versionCheck();
 
         return view('cookie-less-tracking::statistics.index', [
-            'stats' => $this->getStats(),
+            'stats' => $version_check ? $this->getStats() : [],
             'db_file_size' => $db_file_size,
-            'version_check' => CookielessTracking::versionCheck(),
+            'version_check' => $version_check,
         ]);
     }
 
@@ -63,7 +64,7 @@ GROUP BY label
 ORDER BY label
 SQL;
 
-        $pdo = CookielessTracking::getPDO();
+        $pdo = CookieLessTracking::getPDO();
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);

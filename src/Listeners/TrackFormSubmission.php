@@ -2,7 +2,7 @@
 
 namespace Redcodede\CookieLessTracking\Listeners;
 
-use Redcodede\CookieLessTracking\CookielessTracking;
+use Redcodede\CookieLessTracking\CookieLessTracking;
 
 class TrackFormSubmission
 {
@@ -25,7 +25,7 @@ class TrackFormSubmission
     public function handle($event)
     {
         try {
-            CookielessTracking::trackFormSubmission($event->submission->form->handle, $event->submission->form->title);
+            CookieLessTracking::trackFormSubmission($event->submission->form->handle, $event->submission->form->title);
         } catch (\Exception $exception) {}
     }
 }

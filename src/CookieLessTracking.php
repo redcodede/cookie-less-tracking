@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Redcodede\CookieLessTracking\Tags\TrackPageView;
 use SQLite3;
 
-class CookielessTracking
+class CookieLessTracking
 {
 
     public static function install()
