@@ -36,7 +36,7 @@
 </template>
 
 <script>
-
+// <editor-fold defaultstate="collapsed" desc="Chart JS">
 function Chart() {}
 Chart.prototype = {
     colors: ['#d2007a', '#0098d4', '#dddb2f', '#1d7e07', '#2c4a4a', '#ff5928'],
@@ -434,6 +434,7 @@ LineChart.prototype = Object.create(Chart.prototype, {
         }
     }
 });
+// </editor-fold>
 
 export default {
     name: "RC_Cookieless_Tracking_Main",
@@ -505,6 +506,8 @@ export default {
         },
         parseStats() {
             this.reset();
+
+            if (this.rawStats.length === 0) return;
 
             this.date_start = this.rawStats[0].label;
             this.date_end = this.rawStats[this.rawStats.length - 1].label;

@@ -17,12 +17,13 @@ class ServiceProvider extends AddonServiceProvider
     ];
 
     protected $listen = [
-        \Statamic\Events\ResponseCreated::class => [
-            \Redcodede\CookieLessTracking\Listeners\TrackPageView::class,
-        ],
         \Statamic\Events\FormSubmitted::class => [
             \Redcodede\CookieLessTracking\Listeners\TrackFormSubmission::class,
         ]
+    ];
+
+    protected $tags = [
+        \Redcodede\CookieLessTracking\Tags\TrackPageView::class,
     ];
 
     public function boot()
@@ -43,7 +44,7 @@ class ServiceProvider extends AddonServiceProvider
     protected function bootAddonNav()
     {
         Nav::extend(function ($nav) {
-            $nav->tools('Cookie-less Tracking')
+            $nav->tools('Cookie Less Tracking')
                 ->route('cookie-less-tracking.index')
                 ->icon('seo-search-graph');
         });

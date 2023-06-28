@@ -2,23 +2,43 @@
 
 namespace Redcodede\CookieLessTracking;
 
+use Illuminate\Support\Facades\Log;
+use Redcodede\CookieLessTracking\Tags\TrackPageView;
+use SQLite3;
+
 class CookielessTracking
 {
 
     public static function install()
     {
-        /**
-         * @Todo:
-         *      - Check if PDO Extension and SQLite Extension exist
-         *      - Check if Folder is writable
-         */
-        self::createTrackingDbFile();
-        self::createAnalyticsEventView();
+        if (self::versionCheck()) {
+            /**
+             * @Todo:
+             *      - Check if Folder is writable
+             */
+            self::createTrackingDbFile();
+            self::createAnalyticsEventView();
+        } else {
+            Log::error('SQLite Version is too old. Please update to at least 3.32.0');
+        }
+    }
+
+    public static function versionCheck(): bool
+    {
+        $database = new SQLite3(':memory:');
+        $version = $database->version()['versionString'];
+
+        return version_compare($version, '3.32.0', '>=');
     }
 
     public static function getPDO(): \PDO
     {
         return new \PDO('sqlite:'.database_path('tracking.sqlite'));
+    }
+
+    public static function getDbFileSize()
+    {
+        return filesize(database_path('tracking.sqlite'));
     }
 
     private static function prepareStatement() {

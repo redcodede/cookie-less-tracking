@@ -10,8 +10,12 @@ class StatisticsController extends CpController
 {
     public function index(Request $request)
     {
+        $db_file_size = CookielessTracking::getDbFileSize();
+
         return view('cookie-less-tracking::statistics.index', [
             'stats' => $this->getStats(),
+            'db_file_size' => $db_file_size,
+            'version_check' => CookielessTracking::versionCheck(),
         ]);
     }
 
@@ -27,8 +31,8 @@ class StatisticsController extends CpController
 
     protected function getStats(string $date_start = null, string $date_end = null) {
 
-        $start = $date_start ? "'$date_start'" : "date('now','-14 days','-1 day')";
-        $end = $date_end ? "'$date_end'" : "date('now','-1 day')";
+        $start = $date_start ? "'$date_start'" : "date('now','-14 days')";
+        $end = $date_end ? "'$date_end'" : "date('now')";
 
         $sql = <<<SQL
 SELECT

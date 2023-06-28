@@ -16,10 +16,17 @@ You can search for this addon in the `Tools > Addons` section of the Statamic co
 ``` bash
 composer require redcodede/cookie-less-tracking
 ```
+For Page views you **have to** add the `track_page_view` tag to your base layout template file.
+
+    {{ track_page_view }}
+
+FormSubmission's will be automatically tracked by the `TrackFormSubmission` Listener.
+
 
 ## How to Use
 
-Here's where you can explain how to use this wonderful addon.
+Browse to `Tools > Cookie Less Tracking` in the control panel to see the tracked data.
+
 
 ## DEV
 
