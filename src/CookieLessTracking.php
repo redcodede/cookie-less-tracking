@@ -11,24 +11,8 @@ class CookieLessTracking
 
     public static function install()
     {
-        if (self::versionCheck()) {
-            /**
-             * @Todo:
-             *      - Check if Folder is writable
-             */
-            self::createTrackingDbFile();
-            self::createAnalyticsEventView();
-        } else {
-            Log::error('SQLite Version is too old. Please update to at least 3.32.0');
-        }
-    }
-
-    public static function versionCheck(): bool
-    {
-        $database = new SQLite3(':memory:');
-        $version = $database->version()['versionString'];
-
-        return version_compare($version, '3.32.0', '>=');
+        self::createTrackingDbFile();
+        self::createAnalyticsEventView();
     }
 
     public static function getPDO(): \PDO

@@ -11,12 +11,13 @@ class StatisticsController extends CpController
     public function index(Request $request)
     {
         $db_file_size = CookieLessTracking::getDbFileSize();
-        $version_check = CookieLessTracking::versionCheck();
+
+        $stats = $this->getStats();
+        if ( ! $stats) $stats = [];
 
         return view('cookie-less-tracking::statistics.index', [
-            'stats' => $version_check ? $this->getStats() : [],
+            'stats' => $stats,
             'db_file_size' => $db_file_size,
-            'version_check' => $version_check,
         ]);
     }
 
