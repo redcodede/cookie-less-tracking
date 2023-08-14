@@ -22,6 +22,16 @@ For Page views you **have to** add the `track_page_view` tag to your base layout
 
 FormSubmission's will be automatically tracked by the `TrackFormSubmission` Listener.
 
+If you are using the full Caching Strategy you need to run 
+
+    php artisan vendor:publish --tag=cookie-less-tracking-static --force
+
+And you have to add these lines to your .htaccess file
+
+    # RECODEDE COOKIE LESS TRACKING for static pages
+	RewriteCond %{DOCUMENT_ROOT}/static/%{REQUEST_URI}_%{QUERY_STRING}\.html -s
+    RewriteCond %{REQUEST_METHOD} GET
+    RewriteRule .* cookieLessTracking_trackPageView.php [L,T=text/html]
 
 ## How to Use
 

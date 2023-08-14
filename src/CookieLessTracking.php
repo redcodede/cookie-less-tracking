@@ -4,7 +4,6 @@ namespace Redcodede\CookieLessTracking;
 
 use Illuminate\Support\Facades\Log;
 use Redcodede\CookieLessTracking\Tags\TrackPageView;
-use SQLite3;
 
 class CookieLessTracking
 {

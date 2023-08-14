@@ -44,18 +44,18 @@ SELECT
 	sum(submits) as submits,
 	sum(conversions) as conversions,
 	count(DISTINCT session_id) AS sessions,
-	time(avg( CASE WHEN duration > 1 AND duration < 1*60*60 THEN duration ELSE NULL END ),'unixepoch') AS avg_duration,
-	count( CASE WHEN events = 1 THEN 1 ELSE NULL END ) AS bounces
+	time(avg( CASE WHEN duration > 1 AND duration < 1*60*60 THEN duration END ),'unixepoch') AS avg_duration,
+	count( CASE WHEN events = 1 THEN 1 END ) AS bounces
 FROM (
 	SELECT
 		tenant_id, campaign_id,
 		session_id,
 		strftime('%Y-%m-%d',date(event_time, 'unixepoch', 'localtime')) AS label,
 		count() as events,
-		count( CASE WHEN event_name = 'page_view' THEN 1 ELSE NULL END ) AS views,
-		count( CASE WHEN event_name = 'file_download' THEN 1 ELSE NULL END ) AS downloads,
-		count( CASE WHEN event_name = 'form_submit' THEN 1 ELSE NULL END ) AS submits,
-		count( CASE WHEN event_category = 'conversion' THEN 1 ELSE NULL END ) AS conversions,
+		count( CASE WHEN event_name = 'page_view' THEN 1 END ) AS views,
+		count( CASE WHEN event_name = 'file_download' THEN 1 END ) AS downloads,
+		count( CASE WHEN event_name = 'form_submit' THEN 1 END ) AS submits,
+		count( CASE WHEN event_category = 'conversion' THEN 1 END ) AS conversions,
 		(max(`event_time`) - min(`event_time`)) AS duration
 	FROM analytics_events
 	WHERE date(event_time, 'unixepoch', 'localtime') BETWEEN $start AND $end
