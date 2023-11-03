@@ -33,6 +33,18 @@ And you have to add these lines to your .htaccess file
     RewriteCond %{REQUEST_METHOD} GET
     RewriteRule .* cookieLessTracking_trackPageView.php [L,T=text/html]
 
+Add this to your .htaccess file to track Downloads. Adjust the download directory path accordingly.
+
+    # RECODEDE COOKIE LESS TRACKING for downloads
+    RewriteCond %{REQUEST_URI} /assets/downloads/
+    RewriteCond %{REQUEST_METHOD} GET
+    RewriteCond %{QUERY_STRING} ^$
+    RewriteRule ^ cookieLessTracking_trackFileDownload.php [L]
+
+Then run this command:
+
+    php artisan vendor:publish --tag=cookie-less-tracking-download --force
+
 ## How to Use
 
 Browse to `Tools > Cookie Less Tracking` in the control panel to see the tracked data.

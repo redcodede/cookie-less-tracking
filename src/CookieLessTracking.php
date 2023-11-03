@@ -78,6 +78,28 @@ SQL;
         ]));
     }
 
+    /**
+     * track a download file being viewed
+     *
+     * @param string|null $event_target
+     * @param string|null $event_label
+     * @return void
+     * @see TrackFileDownload::handle
+     */
+    public static function trackFileDownload(string $event_target = null, string $event_label = null)
+    {
+        // Do not track/break if not yet installed
+        if ( ! file_exists(database_path('tracking.sqlite'))) return;
+
+        $stmt = self::prepareStatement();
+        $stmt->execute(array_merge(self::getDefaultValues(), [
+            'event_name' => 'file_download',
+            'event_category' => 'engagement',
+            'event_target' => $event_target,
+            'event_label' => $event_label,
+        ]));
+    }
+
     private static function dnt_enabled(): bool
     {
         if (isset($_SERVER['HTTP_DNT'])) {
