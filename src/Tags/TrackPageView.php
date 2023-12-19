@@ -20,12 +20,19 @@ class TrackPageView extends Tags
      */
     public function index()
     {
-        $id = $this->context->get('id')->value() ?? null;
-        $title = $this->context->get('title')->value() ?? null;
+        try {
+            $id_object = $this->context->get('id');
+            $title_object = $this->context->get('title');
+            if (is_null($id_object) || is_null($title_object)) return;
 
-        if (is_null($id) || is_null($title)) return;
+            $id = $id_object->value();
+            $title = $title_object->value();
+            if (is_null($id) || is_null($title)) return;
 
-        CookieLessTracking::trackPageView($id, $title);
+            CookieLessTracking::trackPageView($id, $title);
+        } catch (\Exception $e) {
+            // do nothing
+        }
     }
 
 }
