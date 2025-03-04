@@ -53,3 +53,6 @@ Browse to `Tools > Cookie Less Tracking` in the control panel to see the tracked
 ## DEV
 
     ln -s /var/www/html/addons/redcodede/cookie-less-tracking/resources/dist public/vendor/cookie-less-tracking
+
+Für jedes Update an den dev files zum Testen sowohl im addon als auch auf root ebene composer dump-autoload durchführen.
+JS und VUE muss natürlich gebundlet sein.

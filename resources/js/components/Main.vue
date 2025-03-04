@@ -32,6 +32,24 @@
                 {{ sums[index] }}
             </div>
         </div>
+        <div v-if="downloadsPresent" class="card p-4 mt-4 content">
+            <h2>Downloads</h2>
+            <p>Files downloaded between {{ date_start }} and {{ date_end }}</p>
+            <table class="mt-2">
+                <thead>
+                <tr>
+                    <th class="p-1 text-left" style="width: 100%;">Download file</th>
+                    <th class="p-1 text-left">Downloads</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(fileDownload, index) in fileDownloads" :key="index">
+                    <td class="p-1 text-left" style="width: 100%;">{{ fileDownload.event_uri }}</td>
+                    <td class="p-1 text-left">{{ fileDownload.downloads }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </template>
 
@@ -438,15 +456,16 @@ LineChart.prototype = Object.create(Chart.prototype, {
 
 export default {
     name: "RC_Cookieless_Tracking_Main",
-    props: ['dbStats', 'fetchUrl'],
+    props: ['dbStats', 'dbDownloads', 'fetchUrl'],
     data() {
         return {
             message: "Test 2?",
             rawStats: this.dbStats,
+            fileDownloads: this.dbDownloads,
             ui: {
                 sessions: true,
                 views: true,
-                downloads: false,
+                downloads: true,
                 conversions: false,
                 submits: false,
                 bounces: false,
@@ -460,9 +479,23 @@ export default {
         }
     },
     computed: {
-
+        downloadsPresent() {
+            return this.fileDownloads.length > 0;
+        }
     },
     methods: {
+        echoData() {
+            if (!this.downloadsPresent) return;
+
+            console.log(this.fileDownloads);
+        },
+        prepareFileDownloads() {
+            if (!this.downloadsPresent) return;
+
+            this.fileDownloads.forEach((download) => {
+                download.event_uri = download.event_uri.replace('/cookieLessTracking_trackFileDownload.php?download=/assets/downloads/', '');
+            });
+        },
         fetchData() {
             if (this.fetching) return;
             this.fetching = true;
@@ -554,10 +587,14 @@ export default {
     mounted() {
         this.parseStats();
         this.renderChart();
+        /* this.echoData(); */
+        this.prepareFileDownloads();
     }
 }
 </script>
 
 <style scoped>
-
+    tbody tr:nth-child(odd) {
+        background-color: #f3f3f3;
+    }
 </style>
