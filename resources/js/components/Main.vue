@@ -508,6 +508,7 @@ export default {
 
                     this.parseStats();
                     this.renderChart();
+                    this.prepareFileDownloads();
                 })
                 .finally(() => {
                     this.fetching = false;
@@ -516,6 +517,7 @@ export default {
         toggleLine(line) {
             this.ui[line] = !this.ui[line];
             this.renderChart();
+            this.prepareFileDownloads();
         },
         reset() {
             this.lines = {
