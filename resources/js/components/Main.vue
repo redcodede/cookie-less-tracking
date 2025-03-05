@@ -456,7 +456,7 @@ LineChart.prototype = Object.create(Chart.prototype, {
 
 export default {
     name: "RC_Cookieless_Tracking_Main",
-    props: ['dbStats', 'dbDownloads', 'fetchUrl'],
+    props: ['dbStats', 'dbDownloads', 'fetchUrlStats', 'fetchUrlDownloads'],
     data() {
         return {
             message: "Test 2?",
@@ -465,7 +465,7 @@ export default {
             ui: {
                 sessions: true,
                 views: true,
-                downloads: true,
+                downloads: false,
                 conversions: false,
                 submits: false,
                 bounces: false,
@@ -475,7 +475,8 @@ export default {
 
             date_start: null,
             date_end: null,
-            fetching: false,
+            fetchingStats: false,
+            fetchingDownloads: false,
         }
     },
     computed: {
@@ -497,27 +498,37 @@ export default {
             });
         },
         fetchData() {
-            if (this.fetching) return;
-            this.fetching = true;
+            if (this.fetchingStats || this.fetchingDownloads) return;
+            this.fetchingStats = true;
+            this.fetchingDownloads = true;
 
-            const request = new Request(`${this.fetchUrl}?start=${this.date_start}&end=${this.date_end}`);
-            fetch(request)
+            const requestStats = new Request(`${this.fetchUrlStats}?start=${this.date_start}&end=${this.date_end}`);
+            const requestDownloads = new Request(`${this.fetchUrlDownloads}?start=${this.date_start}&end=${this.date_end}`);
+            fetch(requestStats)
                 .then((response) => response.json())
                 .then((data) => {
                     this.rawStats = data;
 
                     this.parseStats();
                     this.renderChart();
+                })
+                .finally(() => {
+                    this.fetchingStats = false;
+                });
+            fetch(requestDownloads)
+                .then((response) => response.json())
+                .then((data) => {
+                    this.fileDownloads = data;
+
                     this.prepareFileDownloads();
                 })
                 .finally(() => {
-                    this.fetching = false;
+                    this.fetchingDownloads = false;
                 });
         },
         toggleLine(line) {
             this.ui[line] = !this.ui[line];
             this.renderChart();
-            this.prepareFileDownloads();
         },
         reset() {
             this.lines = {
@@ -589,14 +600,11 @@ export default {
     mounted() {
         this.parseStats();
         this.renderChart();
-        /* this.echoData(); */
         this.prepareFileDownloads();
     }
 }
 </script>
 
 <style scoped>
-    tbody tr:nth-child(odd) {
-        background-color: #f3f3f3;
-    }
+
 </style>

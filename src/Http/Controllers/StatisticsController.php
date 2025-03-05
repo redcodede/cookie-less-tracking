@@ -32,6 +32,15 @@ class StatisticsController extends CpController
             )
         );
     }
+    public function filterDownloads(Request $request)
+    {
+        return response()->json(
+            $this->getDownloadStatistics(
+                $request->get('start'),
+                $request->get('end')
+            )
+        );
+    }
 
     protected function getStats(string $date_start = null, string $date_end = null) {
 
