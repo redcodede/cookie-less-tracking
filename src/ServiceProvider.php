@@ -39,6 +39,9 @@ class ServiceProvider extends AddonServiceProvider
         $this->publishes([
             __DIR__.'/../files-for-the-public-dir/cookieLessTracking_trackFileDownload.php' => public_path('cookieLessTracking_trackFileDownload.php'),
         ], 'cookie-less-tracking-download');
+        $this->publishes([
+            __DIR__.'/../files-for-the-public-dir/cookieLessTracking_trackMediaUsed.php' => public_path('cookieLessTracking_trackMediaUsed.php'),
+        ], 'cookie-less-tracking-media');
     }
 
     public function bootAddon()

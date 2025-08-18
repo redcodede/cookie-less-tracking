@@ -22,7 +22,7 @@ For Page views you **have to** add the `track_page_view` tag to your base layout
 
 FormSubmission's will be automatically tracked by the `TrackFormSubmission` Listener.
 
-If you are using the full Caching Strategy you need to run 
+If you are using the full Caching Strategy you need to run
 
     php artisan vendor:publish --tag=cookie-less-tracking-static --force
 
@@ -40,6 +40,15 @@ Add this to your .htaccess file to track Downloads. Adjust the download director
     RewriteCond %{REQUEST_METHOD} GET
     RewriteCond %{QUERY_STRING} ^$
     RewriteRule ^ cookieLessTracking_trackFileDownload.php [L]
+
+Add this to your .htaccess file to track Media Files being requested. Adjust the assets directory path accordingly.
+
+    # RECODEDE COOKIE LESS TRACKING for media other than downloads
+    RewriteCond %{REQUEST_URI} !/assets/downloads/
+    RewriteCond %{REQUEST_URI} /assets/
+    RewriteCond %{REQUEST_METHOD} GET
+    RewriteCond %{QUERY_STRING} ^$
+    RewriteRule ^ cookieLessTracking_trackMediaUsed.php [L]
 
 Then run this command:
 
