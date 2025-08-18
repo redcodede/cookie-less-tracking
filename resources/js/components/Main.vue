@@ -56,12 +56,14 @@
       <table class="mt-2">
         <thead>
         <tr>
+          <th class="p-1 text-left">Type</th>
           <th class="p-1 text-left" style="width: 100%;">File</th>
           <th class="p-1 text-left">Requests</th>
         </tr>
         </thead>
         <tbody>
         <tr v-for="(media, index) in mediaUsage" :key="index">
+          <td class="p-1 text-left" style="width: 100%;">{{ media.event_label }}</td>
           <td class="p-1 text-left" style="width: 100%;">{{ media.event_uri }}</td>
           <td class="p-1 text-left">{{ media.requests }}</td>
         </tr>
@@ -521,7 +523,7 @@ export default {
       });
     },
     fetchData() {
-      if (this.fetchingStats || this.fetchingDownloads) return;
+      if (this.fetchingStats || this.fetchingDownloads || this.fetchingMediaUsage) return;
       this.fetchingStats = true;
       this.fetchingDownloads = true;
       this.fetchingMediaUsage = true;
@@ -568,7 +570,7 @@ export default {
         sessions: {title: 'User Sessions', data: [], color: '#d2007a'},
         views: {title: 'Views', data: [], color: '#0098d4'},
         downloads: {title: 'Downloads', data: [], color: '#fdc600'},
-        downloads: {title: 'Media', data: [], color: '#5dc0a0'},
+        media: {title: 'Media', data: [], color: '#5dc0a0'},
         conversions: {title: 'Conversions', data: [], color: '#adcb57'},
         submits: {title: 'Submits', data: [], color: '#f39910'},
         bounces: {title: 'Bounces', data: [], color: '#db001b'},

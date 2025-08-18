@@ -131,7 +131,7 @@ SELECT
     session_id, event_uri,
     strftime('%Y-%m-%d',date(event_time, 'unixepoch', 'localtime')) AS label,
     count() as events,
-    count( CASE WHEN event_name = 'media_used' THEN 1 END ) AS downloads,
+    count( CASE WHEN event_name = 'media_used' THEN 1 END ) AS requests,
     (max(`event_time`) - min(`event_time`)) AS duration
 FROM analytics_events
 WHERE date(event_time, 'unixepoch', 'localtime') BETWEEN $start AND $end AND event_name = 'media_used'

@@ -11,3 +11,5 @@ require __DIR__.'/../vendor/autoload.php';
 
 $app = require_once __DIR__.'/../bootstrap/app.php';
 \Redcodede\CookieLessTracking\CookieLessTracking::trackMediaUsage($uri, $label);
+
+if ($_GET['t'] !== "1") header("Location: $uri" . str_contains($uri, '?') === false ? '?t=1' : '&t=1');

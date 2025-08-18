@@ -44,8 +44,7 @@ Add this to your .htaccess file to track Downloads. Adjust the download director
 Add this to your .htaccess file to track Media Files being requested. Adjust the assets directory path accordingly.
 
     # RECODEDE COOKIE LESS TRACKING for media other than downloads
-    RewriteCond %{REQUEST_URI} !/assets/downloads/
-    RewriteCond %{REQUEST_URI} /assets/
+    RewriteCond %{REQUEST_URI} /assets/videos/
     RewriteCond %{REQUEST_METHOD} GET
     RewriteCond %{QUERY_STRING} ^$
     RewriteRule ^ cookieLessTracking_trackMediaUsed.php [L]
