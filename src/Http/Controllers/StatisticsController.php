@@ -20,6 +20,7 @@ class StatisticsController extends CpController
         return view('cookie-less-tracking::statistics.index', [
             'stats' => $stats,
             'downloads' => $downloads,
+            'media' => $media,
             'db_file_size' => $db_file_size,
         ]);
     }
