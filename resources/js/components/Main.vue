@@ -63,7 +63,7 @@
         </thead>
         <tbody>
         <tr v-for="(media, index) in mediaUsage" :key="index">
-          <td class="p-1 text-left" style="width: 100%;">{{ media.event_label }}</td>
+          <td class="p-1 text-left">{{ media.event_label }}</td>
           <td class="p-1 text-left" style="width: 100%;">{{ media.event_uri }}</td>
           <td class="p-1 text-left">{{ media.requests }}</td>
         </tr>

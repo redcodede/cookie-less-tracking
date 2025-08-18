@@ -128,7 +128,7 @@ SQL;
         $sql = <<<SQL
 SELECT
     tenant_id, campaign_id,
-    session_id, event_uri,
+    session_id, event_uri, event_label,
     strftime('%Y-%m-%d',date(event_time, 'unixepoch', 'localtime')) AS label,
     count() as events,
     count( CASE WHEN event_name = 'media_used' THEN 1 END ) AS requests,
