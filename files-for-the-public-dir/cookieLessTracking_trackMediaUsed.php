@@ -4,12 +4,15 @@
  */
 
 $uri = $_SERVER['REQUEST_URI'];
-$label = $_GET['requested'] === '1' ? 'requested' : 'loaded'; /* unless media was specifically requested, label will be null resulting in value 'loaded' */
+$label = isset($_GET['requested']) && $_GET['requested'] === '1' ? 'requested' : 'loaded'; /* unless media was specifically requested, label will be null resulting in value 'loaded' */
+$cleanURI = str_replace('clt=1', '', $uri);
 
 define('LARAVEL_START', microtime(true));
 require __DIR__.'/../vendor/autoload.php';
 
 $app = require_once __DIR__.'/../bootstrap/app.php';
-\Redcodede\CookieLessTracking\CookieLessTracking::trackMediaUsage($uri, $label);
+\Redcodede\CookieLessTracking\CookieLessTracking::trackMediaUsage($cleanURI, $label);
 
-if ($_GET['t'] !== "1") header("Location: $uri" . str_contains($uri, '?') === false ? '?t=1' : '&t=1');
+$stripURI = str_replace('requested=1', '', $uri);
+$newHeader = str_contains($stripURI, '?') === false ? $stripURI . '?clt=1' : $stripURI . '&clt=1';
+if (!isset($_GET['clt'])) header("Location: $newHeader");

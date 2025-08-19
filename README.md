@@ -46,8 +46,10 @@ Add this to your .htaccess file to track Media Files being requested. Adjust the
     # RECODEDE COOKIE LESS TRACKING for media other than downloads
     RewriteCond %{REQUEST_URI} /assets/videos/
     RewriteCond %{REQUEST_METHOD} GET
-    RewriteCond %{QUERY_STRING} ^$
+    RewriteCond %{QUERY_STRING} !clt=1
     RewriteRule ^ cookieLessTracking_trackMediaUsed.php [L]
+
+With an asynchronous JavaScript call to ${url}?requested=1 you can differentiate between loaded resources and requested resources.
 
 Then run this command:
 
