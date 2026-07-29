@@ -2,6 +2,8 @@
 
 namespace Redcodede\CookieLessTracking;
 
+use Illuminate\Console\Scheduling\Schedule;
+use Redcodede\CookieLessTracking\Console\Commands\CompactTrackingHistory;
 use Statamic\Providers\AddonServiceProvider;
 use Statamic\Facades\CP\Nav;
 use Statamic\Statamic;
@@ -12,8 +14,11 @@ class ServiceProvider extends AddonServiceProvider
         'cp' => __DIR__.'/../routes/cp.php',
     ];
 
-    protected $scripts = [
-        __DIR__.'/../resources/dist/js/cp.js',
+    protected $vite = [
+        'input' => [
+            'resources/js/cp.js',
+        ],
+        'publicDirectory' => 'resources/dist',
     ];
 
     protected $listen = [
@@ -26,11 +31,16 @@ class ServiceProvider extends AddonServiceProvider
         \Redcodede\CookieLessTracking\Tags\TrackPageView::class,
     ];
 
-    public function boot()
-    {
-        parent::boot();
+    protected $commands = [
+        CompactTrackingHistory::class,
+    ];
 
-        $this->bootAddon();
+    public function bootAddon()
+    {
+        Statamic::afterInstalled(function ($command) {
+            CookieLessTracking::install();
+        });
+
         $this->bootAddonNav();
 
         $this->publishes([
@@ -44,22 +54,24 @@ class ServiceProvider extends AddonServiceProvider
         ], 'cookie-less-tracking-media');
     }
 
-    public function bootAddon()
-    {
-        Statamic::afterInstalled(function ($command) {
-            CookieLessTracking::install();
-        });
-    }
-
-    protected function bootAddonNav()
+    protected function bootAddonNav(): void
     {
         Nav::extend(function ($nav) {
             $nav->tools('Cookie Less Tracking')
                 ->route('cookie-less-tracking.index')
                 ->icon('seo-search-graph');
         });
-
-        return $this;
     }
 
+    protected function schedule(Schedule $schedule)
+    {
+        if (! config('cookie-less-tracking.automatic_compaction', false)) {
+            return;
+        }
+
+        $schedule
+            ->command('cookie-less-tracking:compact')
+            ->dailyAt((string) config('cookie-less-tracking.compaction_time', '02:15'))
+            ->withoutOverlapping();
+    }
 }

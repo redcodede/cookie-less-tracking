@@ -2,146 +2,192 @@
 
 namespace Redcodede\CookieLessTracking\Http\Controllers;
 
+use Carbon\CarbonImmutable;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Redcodede\CookieLessTracking\CookieLessTracking;
+use Redcodede\CookieLessTracking\Reporting\StatisticsRepository;
 use Statamic\Http\Controllers\CP\CpController;
 
 class StatisticsController extends CpController
 {
-    public function index(Request $request)
+    public function index(): View
     {
-        $db_file_size = CookieLessTracking::getDbFileSize();
-
-        $stats = $this->getStats();
-        $downloads = $this->getDownloadStatistics();
-        $media = $this->getMediaStatistics();
-        if ( ! $stats) $stats = [];
+        [$start, $end] = $this->defaultDateRange();
 
         return view('cookie-less-tracking::statistics.index', [
-            'stats' => $stats,
-            'downloads' => $downloads,
-            'media' => $media,
-            'db_file_size' => $db_file_size,
+            'databaseSize' => CookieLessTracking::getDbFileSize(),
+            'start' => $start,
+            'end' => $end,
         ]);
     }
 
-    public function filterStats(Request $request)
+    public function report(Request $request): JsonResponse
     {
+        $filters = $this->validatedFilters($request);
+        $repository = $this->repository();
+
+        if (! $repository) {
+            return response()->json([
+                'stats' => [],
+                'pages' => $this->emptyPage($filters['per_page']),
+                'downloads' => $this->emptyPage($filters['per_page']),
+                'media' => $this->emptyPage($filters['per_page']),
+                'conversion_events' => $this->conversionEvents(),
+                'history' => $this->emptyHistory(),
+            ]);
+        }
+
+        return response()->json([
+            'stats' => $repository->daily(
+                $filters['start'],
+                $filters['end'],
+                $filters['conversion_event'],
+            ),
+            'pages' => $repository->pages(
+                $filters['start'],
+                $filters['end'],
+                $filters['page'],
+                $filters['per_page'],
+            ),
+            'downloads' => $repository->downloads(
+                $filters['start'],
+                $filters['end'],
+                $filters['downloads_page'],
+                $filters['per_page'],
+            ),
+            'media' => $repository->media(
+                $filters['start'],
+                $filters['end'],
+                $filters['media_page'],
+                $filters['per_page'],
+            ),
+            'conversion_events' => $this->conversionEvents($repository),
+            'history' => $repository->historyStatus(),
+        ]);
+    }
+
+    /**
+     * Kept for backwards compatibility with existing bookmarks and integrations.
+     */
+    public function filterStats(Request $request): JsonResponse
+    {
+        $filters = $this->validatedFilters($request);
+
         return response()->json(
-            $this->getStats(
-                $request->get('start'),
-                $request->get('end')
-            )
+            $this->repository()?->daily(
+                $filters['start'],
+                $filters['end'],
+                $filters['conversion_event'],
+            ) ?? []
         );
     }
-    public function filterDownloads(Request $request)
+
+    public function filterDownloads(Request $request): JsonResponse
     {
-        return response()->json(
-            $this->getDownloadStatistics(
-                $request->get('start'),
-                $request->get('end')
-            )
+        $filters = $this->validatedFilters($request);
+        $page = $this->repository()?->downloads(
+            $filters['start'],
+            $filters['end'],
+            1,
+            100,
         );
+
+        return response()->json($page['data'] ?? []);
     }
-    public function filterMediaUsage(Request $request)
+
+    public function filterMediaUsage(Request $request): JsonResponse
     {
-        return response()->json(
-            $this->getMediaStatistics(
-                $request->get('start'),
-                $request->get('end')
-            )
+        $filters = $this->validatedFilters($request);
+        $page = $this->repository()?->media(
+            $filters['start'],
+            $filters['end'],
+            1,
+            100,
         );
+
+        return response()->json($page['data'] ?? []);
     }
 
-    protected function getStats(string $date_start = null, string $date_end = null) {
+    private function validatedFilters(Request $request): array
+    {
+        [$defaultStart, $defaultEnd] = $this->defaultDateRange();
 
-        $start = $date_start ? "'$date_start'" : "date('now','-14 days')";
-        $end = $date_end ? "'$date_end'" : "date('now')";
+        $validated = $request->validate([
+            'start' => ['nullable', 'date_format:Y-m-d'],
+            'end' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:start'],
+            'page' => ['nullable', 'integer', 'min:1'],
+            'downloads_page' => ['nullable', 'integer', 'min:1'],
+            'media_page' => ['nullable', 'integer', 'min:1'],
+            'per_page' => ['nullable', 'integer', 'min:10', 'max:100'],
+            'conversion_event' => ['nullable', 'string', 'max:100', 'regex:/^[A-Za-z0-9_.:-]+$/'],
+        ]);
 
-        $sql = <<<SQL
-SELECT
-	tenant_id, campaign_id, label,
-	sum(views) as views,
-	sum(downloads) as downloads,
-    sum(media) as media,
-	sum(submits) as submits,
-	sum(conversions) as conversions,
-	count(DISTINCT session_id) AS sessions,
-	time(avg( CASE WHEN duration > 1 AND duration < 1*60*60 THEN duration END ),'unixepoch') AS avg_duration,
-	count( CASE WHEN events = 1 THEN 1 END ) AS bounces
-FROM (
-	SELECT
-		tenant_id, campaign_id,
-		session_id,
-		strftime('%Y-%m-%d',date(event_time, 'unixepoch', 'localtime')) AS label,
-		count() as events,
-		count( CASE WHEN event_name = 'page_view' THEN 1 END ) AS views,
-		count( CASE WHEN event_name = 'file_download' THEN 1 END ) AS downloads,
-        count( CASE WHEN event_name = 'media_used' THEN 1 END ) AS media,
-		count( CASE WHEN event_name = 'form_submit' THEN 1 END ) AS submits,
-		count( CASE WHEN event_category = 'conversion' THEN 1 END ) AS conversions,
-		(max(`event_time`) - min(`event_time`)) AS duration
-	FROM analytics_events
-	WHERE date(event_time, 'unixepoch', 'localtime') BETWEEN $start AND $end
-	GROUP BY tenant_id, campaign_id, label, session_id
-)
-GROUP BY label
-ORDER BY label
-SQL;
-
-        $pdo = CookieLessTracking::getPDO();
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return [
+            'start' => $validated['start'] ?? $defaultStart,
+            'end' => $validated['end'] ?? $defaultEnd,
+            'page' => (int) ($validated['page'] ?? 1),
+            'downloads_page' => (int) ($validated['downloads_page'] ?? 1),
+            'media_page' => (int) ($validated['media_page'] ?? 1),
+            'per_page' => (int) ($validated['per_page'] ?? 25),
+            'conversion_event' => $validated['conversion_event'] ?? 'form_submit',
+        ];
     }
 
-    protected function getDownloadStatistics(string $date_start = null, string $date_end = null) {
+    private function repository(): ?StatisticsRepository
+    {
+        $path = database_path('tracking.sqlite');
 
-        $start = $date_start ? "'$date_start'" : "date('now','-14 days')";
-        $end = $date_end ? "'$date_end'" : "date('now')";
+        if (! is_file($path)) {
+            return null;
+        }
 
-        $sql = <<<SQL
-SELECT
-    tenant_id, campaign_id,
-    session_id, event_uri,
-    strftime('%Y-%m-%d',date(event_time, 'unixepoch', 'localtime')) AS label,
-    count() as events,
-    count( CASE WHEN event_name = 'file_download' THEN 1 END ) AS downloads,
-    (max(`event_time`) - min(`event_time`)) AS duration
-FROM analytics_events
-WHERE date(event_time, 'unixepoch', 'localtime') BETWEEN $start AND $end AND event_name = 'file_download'
-GROUP BY event_uri
-ORDER BY events DESC
-SQL;
+        $repository = new StatisticsRepository(
+            CookieLessTracking::getPDO(),
+            (string) config('app.timezone', 'UTC'),
+        );
 
-        $pdo = CookieLessTracking::getPDO();
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $repository->isAvailable() ? $repository : null;
     }
 
-    protected function getMediaStatistics(string $date_start = null, string $date_end = null) {
+    private function defaultDateRange(): array
+    {
+        $today = CarbonImmutable::today();
 
-        $start = $date_start ? "'$date_start'" : "date('now','-14 days')";
-        $end = $date_end ? "'$date_end'" : "date('now')";
+        return [$today->subDays(14)->toDateString(), $today->toDateString()];
+    }
 
-        $sql = <<<SQL
-SELECT
-    tenant_id, campaign_id,
-    session_id, event_uri, event_label,
-    strftime('%Y-%m-%d',date(event_time, 'unixepoch', 'localtime')) AS label,
-    count() as events,
-    count( CASE WHEN event_name = 'media_used' THEN 1 END ) AS requests,
-    (max(`event_time`) - min(`event_time`)) AS duration
-FROM analytics_events
-WHERE date(event_time, 'unixepoch', 'localtime') BETWEEN $start AND $end AND event_name = 'media_used'
-GROUP BY event_uri
-ORDER BY events DESC
-SQL;
+    private function emptyPage(int $perPage): array
+    {
+        return [
+            'data' => [],
+            'meta' => [
+                'current_page' => 1,
+                'last_page' => 1,
+                'per_page' => $perPage,
+                'total' => 0,
+            ],
+        ];
+    }
 
-        $pdo = CookieLessTracking::getPDO();
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute();
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    private function conversionEvents(?StatisticsRepository $repository = null): array
+    {
+        return array_values(array_unique(array_merge(
+            ['form_submit', 'file_download', 'media_used', 'page_view'],
+            $repository?->eventNames() ?? [],
+        )));
+    }
+
+    private function emptyHistory(): array
+    {
+        return [
+            'enabled' => false,
+            'first_day' => null,
+            'last_day' => null,
+            'days' => 0,
+            'raw_rows_compacted' => 0,
+            'timezone' => null,
+        ];
     }
 }

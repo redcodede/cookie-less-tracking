@@ -1,14 +1,21 @@
 {
     "name": "redcodede/cookie-less-tracking",
+    "description": "Privacy-friendly, cookie-less analytics and reporting for Statamic.",
     "require": {
+        "php": "^8.3",
         "ext-pdo": "*",
         "ext-pdo_sqlite": "*",
-        "statamic/cms": ">=3.3.65"
+        "statamic/cms": "^6.0"
     },
     "type": "statamic-addon",
     "autoload": {
         "psr-4": {
             "Redcodede\\CookieLessTracking\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Redcodede\\CookieLessTracking\\Tests\\": "tests"
         }
     },
     "authors": [
@@ -20,13 +27,11 @@
     "support": {
         "email": "service@redcode.org"
     },
-    "license": [
-        "AGPL-3.0"
-    ],
+    "license": "AGPL-3.0-only",
     "extra": {
         "statamic": {
             "name": "Cookie less Tracking",
-            "description": "A GDPR and DSGVO compliant tracking solution"
+            "description": "Privacy-friendly, cookie-less analytics and reporting"
         },
         "laravel": {
             "providers": [
@@ -35,8 +40,13 @@
         }
     },
     "config": {
+        "sort-packages": true,
         "allow-plugins": {
             "pixelfear/composer-dist-plugin": true
         }
+    },
+    "require-dev": {
+        "orchestra/testbench": "^10.8 || ^11.0",
+        "phpunit/phpunit": "^11.5 || ^12.0"
     }
 }

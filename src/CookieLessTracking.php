@@ -3,6 +3,7 @@
 namespace Redcodede\CookieLessTracking;
 
 use Illuminate\Support\Facades\Log;
+use Redcodede\CookieLessTracking\History\HistorySchema;
 use Redcodede\CookieLessTracking\Tags\TrackPageView;
 
 class CookieLessTracking
@@ -12,16 +13,23 @@ class CookieLessTracking
     {
         self::createTrackingDbFile();
         self::createAnalyticsEventView();
+        HistorySchema::ensure(self::getPDO());
     }
 
     public static function getPDO(): \PDO
     {
-        return new \PDO('sqlite:'.database_path('tracking.sqlite'));
+        $pdo = new \PDO('sqlite:'.database_path('tracking.sqlite'));
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        $pdo->exec('PRAGMA busy_timeout = 10000');
+
+        return $pdo;
     }
 
-    public static function getDbFileSize()
+    public static function getDbFileSize(): int
     {
-        return filesize(database_path('tracking.sqlite'));
+        $path = database_path('tracking.sqlite');
+
+        return is_file($path) ? (int) filesize($path) : 0;
     }
 
     private static function prepareStatement() {
@@ -42,7 +50,7 @@ SQL;
      * @return void
      * @see TrackPageView::handle
      */
-    public static function trackPageView(string $event_target = null, string $event_label = null)
+    public static function trackPageView(?string $event_target = null, ?string $event_label = null)
     {
         // Do not track/break if not yet installed
         if ( ! file_exists(database_path('tracking.sqlite'))) return;
@@ -64,7 +72,7 @@ SQL;
      * @return void
      * @see TrackFormSubmission::handle
      */
-    public static function trackFormSubmission(string $event_target = null, string $event_label = null)
+    public static function trackFormSubmission(?string $event_target = null, ?string $event_label = null)
     {
         // Do not track/break if not yet installed
         if ( ! file_exists(database_path('tracking.sqlite'))) return;
@@ -86,7 +94,7 @@ SQL;
      * @return void
      * @see TrackFileDownload::handle
      */
-    public static function trackFileDownload(string $event_target = null, string $event_label = null)
+    public static function trackFileDownload(?string $event_target = null, ?string $event_label = null)
     {
         // Do not track/break if not yet installed
         if ( ! file_exists(database_path('tracking.sqlite'))) return;
@@ -108,7 +116,7 @@ SQL;
      * @return void
      * @see trackMediaUsage::handle
      */
-    public static function trackMediaUsage(string $event_target = null, string $event_label = null)
+    public static function trackMediaUsage(?string $event_target = null, ?string $event_label = null)
     {
         // Do not track/break if not yet installed
         if ( ! file_exists(database_path('tracking.sqlite'))) return;
