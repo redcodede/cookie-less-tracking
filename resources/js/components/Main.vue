@@ -3,19 +3,19 @@
         <section class="card clt-filters">
             <div class="clt-filter-fields">
                 <label>
-                    <span>From</span>
+                    <span>Von</span>
                     <input v-model="start" class="input-text" type="date" :max="end" :disabled="loading">
                 </label>
                 <label>
-                    <span>Until</span>
+                    <span>Bis</span>
                     <input v-model="end" class="input-text" type="date" :min="start" :disabled="loading">
                 </label>
                 <label>
                     <span class="clt-label-with-info">
-                        Conversion event
+                        Conversion-Event
                         <info-button
-                            label="Conversion event"
-                            text="Choose which tracked event should be counted as a conversion. This changes only the reporting interpretation; the stored tracking data remains unchanged."
+                            label="Conversion-Event"
+                            text="Legt fest, welches erfasste Event als Conversion gezählt wird. Dies ändert nur die Auswertung; die gespeicherten Trackingdaten bleiben unverändert."
                         />
                     </span>
                     <select v-model="conversionEvent" class="input-text" :disabled="loading">
@@ -25,30 +25,30 @@
                     </select>
                 </label>
                 <button class="btn-primary" type="button" :disabled="loading || !validRange" @click="applyFilters">
-                    {{ loading ? 'Loading…' : 'Apply filter' }}
+                    {{ loading ? 'Wird geladen…' : 'Filter anwenden' }}
                 </button>
             </div>
             <div class="clt-storage-status">
-                <p class="clt-db-size">Database size: {{ formattedDatabaseSize }}</p>
+                <p class="clt-db-size">Datenbankgröße: {{ formattedDatabaseSize }}</p>
                 <p v-if="history.enabled">
-                    History through {{ history.last_day }} ·
-                    {{ formatNumber(history.raw_rows_compacted) }} raw rows compacted
+                    Historie bis {{ history.last_day }} ·
+                    {{ formatNumber(history.raw_rows_compacted) }} Rohdatensätze verdichtet
                     <info-button
-                        label="Tracking history"
-                        :text="`Data from ${history.first_day} through ${history.last_day} is stored as daily summaries in ${history.timezone}. Individual timestamps, sessions, user agents, referrers, and request headers from those days have been removed.`"
+                        label="Tracking-Historie"
+                        :text="`Daten vom ${history.first_day} bis ${history.last_day} sind als Tageszusammenfassungen in der Zeitzone ${history.timezone} gespeichert. Einzelne Zeitstempel, Session-Kennungen, User-Agents, Referrer und Request-Header dieser Tage wurden entfernt.`"
                     />
                 </p>
             </div>
         </section>
 
         <div v-if="error" class="clt-alert" role="alert">
-            <strong>Reporting could not be loaded.</strong>
+            <strong>Das Reporting konnte nicht geladen werden.</strong>
             <span>{{ error }}</span>
-            <button type="button" @click="loadReport()">Try again</button>
+            <button type="button" @click="loadReport()">Erneut versuchen</button>
         </div>
 
         <template v-else>
-            <section class="clt-metrics" aria-label="Totals">
+            <section class="clt-metrics" aria-label="Gesamtwerte">
                 <article
                     v-for="metric in metrics"
                     :key="metric.key"
@@ -64,7 +64,7 @@
                         type="button"
                         class="clt-metric-toggle"
                         :aria-pressed="enabledMetrics.includes(metric.key)"
-                        :aria-label="`${metric.label}: ${formatNumber(totals[metric.key])}. Toggle chart line.`"
+                        :aria-label="`${metric.label}: ${formatNumber(totals[metric.key])}. Diagrammlinie ein- oder ausblenden.`"
                         @click="toggleMetric(metric.key)"
                     >
                         <strong>{{ formatNumber(totals[metric.key]) }}</strong>
@@ -75,20 +75,20 @@
             <section class="card clt-panel">
                 <div class="clt-panel-heading">
                     <div>
-                        <h2>Activity over time</h2>
+                        <h2>Aktivität im Zeitverlauf</h2>
                         <p>
                             {{ start }} – {{ end }}
                             <info-button
-                                label="Activity chart"
-                                text="Each position represents one calendar day in the Statamic application timezone. Days without events are displayed as zero."
+                                label="Aktivitätsdiagramm"
+                                text="Jede Position entspricht einem Kalendertag in der Zeitzone der Statamic-Installation. Tage ohne Events werden mit null dargestellt."
                             />
                         </p>
                     </div>
                 </div>
-                <div v-if="loading" class="clt-state" aria-live="polite">Loading reporting data…</div>
-                <div v-else-if="!stats.length" class="clt-state">No tracking data is available for this period.</div>
+                <div v-if="loading" class="clt-state" aria-live="polite">Reportingdaten werden geladen…</div>
+                <div v-else-if="!stats.length" class="clt-state">Für diesen Zeitraum sind keine Trackingdaten verfügbar.</div>
                 <div v-else class="clt-chart-scroll">
-                    <svg class="clt-chart" viewBox="0 0 1000 280" role="img" aria-label="Tracking activity line chart">
+                    <svg class="clt-chart" viewBox="0 0 1000 280" role="img" aria-label="Liniendiagramm der Trackingaktivität">
                         <line v-for="tick in 5" :key="tick" x1="48" x2="980" :y1="chartY((tick - 1) * chartMax / 4)" :y2="chartY((tick - 1) * chartMax / 4)" class="clt-grid" />
                         <text v-for="tick in 5" :key="`label-${tick}`" x="40" :y="chartY((tick - 1) * chartMax / 4) + 4" text-anchor="end">{{ formatNumber(Math.round((tick - 1) * chartMax / 4)) }}</text>
                         <polyline
@@ -107,8 +107,8 @@
             </section>
 
             <report-table
-                title="Pages"
-                description="Page views grouped by URL"
+                title="Seiten"
+                description="Page Views gruppiert nach URL"
                 :page="pages"
                 :loading="loading"
                 count-label="Views"
@@ -118,7 +118,7 @@
 
             <report-table
                 title="Downloads"
-                description="File downloads grouped by URL"
+                description="Downloads gruppiert nach URL"
                 :page="downloads"
                 :loading="loading"
                 count-label="Downloads"
@@ -127,12 +127,12 @@
             />
 
             <report-table
-                title="Media usage"
-                description="Media requests grouped by URL and type"
+                title="Mediennutzung"
+                description="Medienaufrufe gruppiert nach URL und Typ"
                 :page="media"
                 :loading="loading"
-                count-label="Requests"
-                total-label="URL/type combinations"
+                count-label="Aufrufe"
+                total-label="URL-/Typ-Kombinationen"
                 show-label
                 @change-page="changePage('media_page', $event)"
             />
@@ -140,12 +140,12 @@
             <section class="card clt-panel">
                 <div class="clt-panel-heading">
                     <div>
-                        <h2>Daily statistics</h2>
+                        <h2>Tagesstatistik</h2>
                         <p>
-                            Sessions, events, average session duration, and bounces
+                            Sessions, Events, durchschnittliche Session-Dauer und Absprünge
                             <info-button
-                                label="Average session duration"
-                                text="Average time between the first and last tracked event of each session. Single-event sessions contribute 0 seconds."
+                                label="Durchschnittliche Session-Dauer"
+                                text="Durchschnittliche Zeit zwischen dem ersten und letzten erfassten Event einer Session. Sessions mit nur einem Event werden mit 0 Sekunden berücksichtigt."
                             />
                         </p>
                     </div>
@@ -154,13 +154,13 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Date</th>
+                                <th>Datum</th>
                                 <th>Sessions</th>
                                 <th>Views</th><th>Downloads</th>
-                                <th>Media</th><th>Submits</th>
-                                <th>Conversions</th>
-                                <th>Avg. duration</th>
-                                <th>Bounces</th>
+                                <th>Medien</th><th>Übermittlungen</th>
+                                <th>Konversionen</th>
+                                <th>Ø Dauer</th>
+                                <th>Absprünge</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -175,7 +175,7 @@
                                 <td>{{ formatDuration(row.avg_duration_seconds) }}</td>
                                 <td>{{ formatNumber(row.bounces) }}</td>
                             </tr>
-                            <tr v-if="!loading && !stats.length"><td colspan="9" class="clt-empty-cell">No daily statistics found.</td></tr>
+                            <tr v-if="!loading && !stats.length"><td colspan="9" class="clt-empty-cell">Keine Tagesstatistiken gefunden.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -209,7 +209,7 @@ const InfoButton = {
             <button
                 type="button"
                 class="clt-info-button"
-                :aria-label="'Information about ' + label"
+                :aria-label="'Informationen zu ' + label"
                 :aria-expanded="open"
                 :aria-describedby="tooltipId"
                 @click.stop="open = !open"
@@ -227,7 +227,7 @@ const ReportTable = {
         page: { type: Object, required: true },
         loading: Boolean,
         countLabel: String,
-        totalLabel: { type: String, default: 'records' },
+        totalLabel: { type: String, default: 'Einträge' },
         showLabel: Boolean,
     },
     emits: ['change-page'],
@@ -244,21 +244,21 @@ const ReportTable = {
             </div>
             <div class="clt-table-wrap">
                 <table>
-                    <thead><tr><th v-if="showLabel">Type</th><th>URL</th><th>{{ countLabel }}</th><th>First seen</th><th>Last seen</th></tr></thead>
+                    <thead><tr><th v-if="showLabel">Typ</th><th>URL</th><th>{{ countLabel }}</th><th>Erstmals erfasst</th><th>Zuletzt erfasst</th></tr></thead>
                     <tbody>
                         <tr v-for="(row, index) in page.data" :key="row.event_uri + '-' + index">
                             <td v-if="showLabel">{{ row.event_label || '—' }}</td>
                             <td class="clt-url" :title="row.event_uri">{{ row.event_uri || '—' }}</td>
                             <td>{{ formatNumber(row.events) }}</td><td>{{ row.first_seen }}</td><td>{{ row.last_seen }}</td>
                         </tr>
-                        <tr v-if="!loading && !page.data.length"><td :colspan="showLabel ? 5 : 4" class="clt-empty-cell">No records found.</td></tr>
+                        <tr v-if="!loading && !page.data.length"><td :colspan="showLabel ? 5 : 4" class="clt-empty-cell">Keine Einträge gefunden.</td></tr>
                     </tbody>
                 </table>
             </div>
-            <nav v-if="page.meta && page.meta.last_page > 1" class="clt-pagination" :aria-label="title + ' pagination'">
-                <button type="button" :disabled="loading || page.meta.current_page <= 1" @click="$emit('change-page', page.meta.current_page - 1)">Previous</button>
-                <span>Page {{ page.meta.current_page }} of {{ page.meta.last_page }}</span>
-                <button type="button" :disabled="loading || page.meta.current_page >= page.meta.last_page" @click="$emit('change-page', page.meta.current_page + 1)">Next</button>
+            <nav v-if="page.meta && page.meta.last_page > 1" class="clt-pagination" :aria-label="'Seitennavigation für ' + title">
+                <button type="button" :disabled="loading || page.meta.current_page <= 1" @click="$emit('change-page', page.meta.current_page - 1)">Zurück</button>
+                <span>Seite {{ page.meta.current_page }} von {{ page.meta.last_page }}</span>
+                <button type="button" :disabled="loading || page.meta.current_page >= page.meta.last_page" @click="$emit('change-page', page.meta.current_page + 1)">Weiter</button>
             </nav>
         </section>
     `,
@@ -301,43 +301,43 @@ export default {
                     key: 'sessions',
                     label: 'Sessions',
                     color: '#d2007a',
-                    description: 'Daily anonymous visitor identifiers. A session spans all tracked events for the same identifier on one calendar day; it resets at midnight.',
+                    description: 'Tägliche pseudonyme Besucherkennungen. Eine Session umfasst alle erfassten Events derselben Kennung an einem Kalendertag und wird um Mitternacht zurückgesetzt.',
                 },
                 {
                     key: 'views',
                     label: 'Views',
                     color: '#0098d4',
-                    description: 'Number of tracked page_view events in the selected period.',
+                    description: 'Anzahl der erfassten page_view Events im ausgewählten Zeitraum.',
                 },
                 {
                     key: 'downloads',
                     label: 'Downloads',
                     color: '#e6a700',
-                    description: 'Number of tracked file_download events in the selected period.',
+                    description: 'Anzahl der erfassten file_download Events im ausgewählten Zeitraum.',
                 },
                 {
                     key: 'media',
-                    label: 'Media',
+                    label: 'Medien',
                     color: '#2d9d78',
-                    description: 'Number of tracked media_used events, including loaded and explicitly requested media.',
+                    description: 'Anzahl der erfassten media_used Events einschließlich geladener und ausdrücklich angeforderter Medien.',
                 },
                 {
                     key: 'submits',
-                    label: 'Form submits',
+                    label: 'Formularübermittlungen',
                     color: '#ef7f1a',
-                    description: 'Number of tracked form_submit events. This is an observed event and remains independent of the selected conversion definition.',
+                    description: 'Anzahl der erfassten form_submit Events. Dieses beobachtete Event bleibt unabhängig von der ausgewählten Conversion-Definition.',
                 },
                 {
                     key: 'conversions',
-                    label: 'Conversions',
+                    label: 'Konversionen',
                     color: '#6b9b25',
-                    description: 'Number of {{event}} events. The conversion event can be selected in the filter above.',
+                    description: 'Anzahl der {{event}} Events. Das als Conversion gewertete Event kann im Filter ausgewählt werden.',
                 },
                 {
                     key: 'bounces',
-                    label: 'Bounces',
+                    label: 'Absprünge',
                     color: '#db001b',
-                    description: 'Sessions containing exactly one page view and no other tracked event.',
+                    description: 'Sessions mit genau einem Page View und keinem weiteren erfassten Event.',
                 },
             ],
         };
@@ -347,7 +347,7 @@ export default {
             return this.start && this.end && this.start <= this.end;
         },
         formattedDatabaseSize() {
-            const units = ['bytes', 'KB', 'MB', 'GB'];
+            const units = ['Bytes', 'KB', 'MB', 'GB'];
             let size = this.databaseSize;
             let unit = 0;
             while (size >= 1024 && unit < units.length - 1) {
@@ -437,7 +437,7 @@ export default {
                 });
                 if (!response.ok) {
                     const body = await response.json().catch(() => ({}));
-                    throw new Error(body.message || `Request failed with status ${response.status}.`);
+                    throw new Error(body.message || `Die Anfrage ist mit Status ${response.status} fehlgeschlagen.`);
                 }
                 const data = await response.json();
                 this.stats = data.stats || [];
@@ -502,9 +502,9 @@ export default {
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             const remainingSeconds = totalSeconds % 60;
 
-            if (hours) return `${hours} h ${minutes} min ${remainingSeconds} sec`;
-            if (minutes) return `${minutes} min ${remainingSeconds} sec`;
-            return `${remainingSeconds} sec`;
+            if (hours) return `${hours} Std. ${minutes} Min. ${remainingSeconds} Sek.`;
+            if (minutes) return `${minutes} Min. ${remainingSeconds} Sek.`;
+            return `${remainingSeconds} Sek.`;
         },
     },
 };
@@ -516,6 +516,8 @@ export default {
 .clt-filter-fields { display: flex; align-items: end; gap: 1rem; flex-wrap: wrap; }
 .clt-filter-fields label { display: grid; gap: .375rem; font-size: .875rem; font-weight: 600; }
 .clt-filter-fields input, .clt-filter-fields select { min-width: 10.5rem; }
+.clt-filter-fields select { color-scheme: light; }
+.clt-filter-fields select option { color: #111827; background-color: #fff; }
 .clt-label-with-info { display: inline-flex; align-items: center; gap: .35rem; }
 .clt-db-size, .clt-panel-heading p { color: var(--clt-muted, #6b7280); font-size: .875rem; }
 .clt-storage-status { display: grid; gap: .25rem; color: var(--clt-muted, #6b7280); font-size: .8rem; text-align: right; }
@@ -554,6 +556,8 @@ export default {
 .clt-alert { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; padding: 1rem; border: 1px solid #ef4444; border-radius: .5rem; color: #991b1b; background: #fef2f2; }
 .clt-alert button { margin-left: auto; }
 .dark .clt-report { --clt-muted: #9ca3af; --clt-border: #374151; }
+.dark .clt-filter-fields select { color-scheme: dark; }
+.dark .clt-filter-fields select option { color: #f3f4f6; background-color: #1f2937; }
 .dark .clt-alert { color: #fecaca; background: rgba(127, 29, 29, .35); }
 @media (max-width: 640px) {
     .clt-filters, .clt-filter-fields { align-items: stretch; }
